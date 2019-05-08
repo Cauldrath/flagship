@@ -24,8 +24,10 @@ import { ListRenderItemInfo, Text, TouchableOpacity, View } from 'react-native';
 import FSI18n, { translationKeys } from '@brandingbrand/fsi18n';
 const componentTranslationKeys = translationKeys.flagship.productIndex;
 
-export interface PropTyps extends ProductIndexPropType {
+export interface PropTyps {
   onPress: (data: CommerceTypes.Product) => () => void;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
 }
 
 const defaultErrorMessage =
@@ -35,10 +37,6 @@ const SORT_ITEM_KEY = '__pirate_sort';
 export interface StateType {
   sortModalVisble: boolean;
   filterModalVisble: boolean;
-  isLoading: boolean;
-  isMoreLoading: boolean;
-  hasAnotherPage: boolean;
-  hasFetchError: boolean;
 }
 
 export default class ProductIndexGrid extends Component<
@@ -50,17 +48,9 @@ export default class ProductIndexGrid extends Component<
   constructor(props: PropTyps & WithProductIndexProps) {
     super(props);
 
-    const { commerceData, onLoadComplete } = props;
-
-    const hasAnotherPage = this.hasAnotherPage(commerceData);
-
     this.state = {
       sortModalVisble: false,
-      filterModalVisble: false,
-      isLoading: false,
-      isMoreLoading: false,
-      hasFetchError: false,
-      hasAnotherPage
+      filterModalVisble: false
     };
 
     if (commerceData && onLoadComplete) {
@@ -105,6 +95,26 @@ export default class ProductIndexGrid extends Component<
   }
 
   renderHeader = () => {
+    return (
+      <View>
+        {renderActionBar()}
+        {renderPrevButton()}
+      </View>
+    );
+  }
+
+  renderPrevButton = () => {
+    if (this.props.renderLoadPrev) {
+      return this.props.renderLoadPrev(
+        this.loadMore,
+        this.state.hasAnotherPage
+      );
+    }
+
+    return null;
+  }
+
+  renderActionBar = () => {
     const {
       commerceData,
       hideActionBar,
@@ -595,54 +605,6 @@ export default class ProductIndexGrid extends Component<
         )}
       </View>
     );
-  }
-
-  loadMore = () => {
-    const {
-      commerceData,
-      commerceProviderLoadMore
-    } = this.props;
-
-    if (!commerceData || !commerceData.page) {
-      // Cannot load more
-      return;
-    }
-
-    this.setState({
-      isMoreLoading: true
-    });
-
-    const newQuery = this.newProductQuery({ page: commerceData.page + 1 });
-    if (commerceProviderLoadMore) {
-      commerceProviderLoadMore(newQuery)
-        .then(data => {
-          const hasAnotherPage = this.hasAnotherPage(data);
-          let totalCount: number = 0;
-
-          // TODO: Pageable properties should not be optional on Product Index type
-          if (data.limit && data.page) {
-            totalCount = (data.limit * (data.page - 1)) + data.products.length;
-          }
-
-          if (this.props.onLoadComplete) {
-            this.props.onLoadComplete(
-              this.loadMore,
-              hasAnotherPage,
-              totalCount,
-              data.products.length
-            );
-          }
-          this.setState({
-            isMoreLoading: false,
-            hasAnotherPage
-          });
-        })
-        .catch(() => {
-          this.setState({
-            isMoreLoading: false
-          });
-        });
-    }
   }
 
   renderFooter = () => {

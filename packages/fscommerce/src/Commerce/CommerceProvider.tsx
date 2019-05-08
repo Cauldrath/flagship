@@ -216,6 +216,13 @@ function withCommerceData<P, Data extends {}, Source = CommerceDataSource>(
               ];
 
               this.setData(data);
+            } else if ((data as any).page < (commerceData as any).page) {
+              (data as any).products = [
+                ...(data as any).products,
+                ...(commerceData as any).products
+              ];
+
+              this.setData(data);
             }
           }
         })

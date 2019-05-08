@@ -54,6 +54,7 @@ export interface UnwrappedProductIndexProps {
     handleFilterReset: Function,
     commerceData: CommerceTypes.ProductIndex
   ) => JSX.Element;
+  renderLoadPrev?: (loadPrev: Function, hasAnotherPage: boolean) => JSX.Element;
   renderLoadMore?: (loadMore: Function, hasAnotherPage: boolean) => JSX.Element;
   renderLoading?: () => JSX.Element;
   renderNoResult?: (
@@ -84,7 +85,105 @@ export interface UnwrappedProductIndexProps {
 
 export type ProductIndexProps = UnwrappedProductIndexProps & WithProductIndexProviderProps;
 
-export class ProductIndex extends Component<UnwrappedProductIndexProps & WithProductIndexProps> {
+export interface ProductIndexState {
+  isLoading: boolean;
+  isPrevLoading: boolean;
+  isMoreLoading: boolean;
+  pageMin: number;
+  pageMax: number;
+  hasFetchError: boolean;
+}
+
+export class ProductIndex extends Component<
+  UnwrappedProductIndexProps & WithProductIndexProps,
+  ProductIndexState
+> {
+  constructor(props: UnwrappedProductIndexProps & WithProductIndexProps) {
+    super(props);
+
+    const { commerceData, onLoadComplete } = props;
+
+    this.state = {
+      isLoading: false,
+      isPrevLoading: false,
+      isMoreLoading: false,
+      hasFetchError: false,
+      pageMin: 1,
+      pageMax: 1
+    };
+
+    if (commerceData && onLoadComplete) {
+      const count = commerceData.products && commerceData.products.length;
+
+      onLoadComplete(this.loadMore, hasAnotherPage, count, count);
+    }
+  }
+
+  hasPrevPage = (data?: CommerceTypes.ProductIndex) => {
+    if (!data || !data.page || !data.total) {
+      return false;
+    }
+
+    return data.page > 1;
+  }
+
+  hasNextPage = (data?: CommerceTypes.ProductIndex) => {
+    if (!data || !data.page || !data.total) {
+      return false;
+    }
+
+    // fall back to count instead of limit in instances where limit wasn't specified in query
+    return data.page * (data.limit || data.products.length) < data.total;
+  }
+
+  loadMore = () => {
+    const {
+      commerceData,
+      commerceProviderLoadMore
+    } = this.props;
+
+    if (!commerceData || !commerceData.page) {
+      // Cannot load more
+      return;
+    }
+
+    this.setState({
+      isMoreLoading: true
+    });
+
+    const newQuery = this.newProductQuery({ page: commerceData.page + 1 });
+    if (commerceProviderLoadMore) {
+      commerceProviderLoadMore(newQuery)
+        .then(data => {
+          const hasAnotherPage = this.hasAnotherPage(data);
+          let totalCount: number = 0;
+
+          // TODO: Pageable properties should not be optional on Product Index type
+          if (data.limit && data.page) {
+            totalCount = (data.limit * (data.page - 1)) + data.products.length;
+          }
+
+          if (this.props.onLoadComplete) {
+            this.props.onLoadComplete(
+              this.loadMore,
+              hasAnotherPage,
+              totalCount,
+              data.products.length
+            );
+          }
+          this.setState({
+            isMoreLoading: false,
+            pageMax: data.page
+          });
+        })
+        .catch(() => {
+          this.setState({
+            isMoreLoading: false
+          });
+        });
+    }
+  }
+
   onPress = (data: CommerceTypes.Product) => {
     return () => {
       if (this.props.onNavigate) {
