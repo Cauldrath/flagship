@@ -4,9 +4,13 @@ type Dictionary = import ('@brandingbrand/fsfoundation').Dictionary;
 
 // Common Interface
 
-export interface Generics extends Dictionary {
-  eventAction: string;
+export interface RootGeneric extends Dictionary {
   eventCategory: string;
+  url?: string;
+}
+
+export interface Generics extends RootGeneric {
+  eventAction: string;
 }
 
 // Commerce Interfaces
@@ -39,10 +43,10 @@ export interface LocationDirections extends Generics {
 export interface SearchGeneric extends Generics {
   term: string;
   count?: number;
+  productList?: Product[];
 }
 
-export interface Screenview extends Dictionary {
-  eventCategory: string;
+export interface Screenview extends RootGeneric {
   url: string;
 }
 
