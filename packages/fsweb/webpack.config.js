@@ -50,9 +50,9 @@ const globalConfig = {
       'react-native-svg': 'svgs'
     },
     modules: [
-      path.resolve('./node_modules'),
-      path.resolve('../node_modules'),
-      path.resolve('../../../node_modules')
+      path.resolve('.', 'node_modules'),
+      path.resolve('..', 'node_modules'),
+      path.resolve('..', '..', '..', 'node_modules')
     ]
   },
   module: {
@@ -79,7 +79,7 @@ const globalConfig = {
               {
                 loader: require.resolve("ts-loader"),
                 options: {
-                  configFile: 'tsconfig/tsconfig.storybook.json'
+                  configFile: 'tsconfig' + path.sep + 'tsconfig.storybook.json'
                 }
               }
             ]
@@ -87,11 +87,13 @@ const globalConfig = {
           {
             test: /\.m?jsx?$/,
             include: [
-              /node_modules\/react-native-/,
-              /node_modules\/tcomb-form-native/,
-              /packages\/fs/
+              new RegExp('node_modules\\' + path.sep + 'react-native-'),
+              new RegExp('node_modules\\' + path.sep + 'tcomb-form-native'),
+              new RegExp('packages\\' + path.sep + 'fs'),
+              new RegExp('node_modules\\' + path.sep + '@brandingbrand\\' + path.sep + 'fs'),
+              new RegExp('node_modules\\' + path.sep + '@brandingbrand\\' + path.sep + 'react-native-')
             ],
-            exclude: /node_modules\/react-native-web\//,
+            exclude: new RegExp('node_modules\\' + path.sep + 'react-native-web\\' + path.sep + ''),
             use: [
               'cache-loader',
               {

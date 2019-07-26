@@ -95,6 +95,9 @@
       "devDependencyUpdate": "chore: update ${dependency} to version ${version}"
     }
   },
+  "jest" : {
+    "preset": "react-native"
+  },
   "workspaces": [
     "packages/*"
   ]
