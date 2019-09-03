@@ -12,6 +12,7 @@ import { setGlobalData } from '../actions/globalDataAction';
 import { AppConfigType, DrawerConfig, NavButton } from '../types';
 import NativeConstants from '../lib/native-constants';
 import EnvSwitcher from '../lib/env-switcher';
+import NavWrapper from '../lib/nav-wrapper';
 
 const styles = StyleSheet.create({
   screenContainer: {
@@ -37,11 +38,16 @@ export interface GenericScreenStateProp {
 }
 
 export interface GenericScreenDispatchProp {
+  navigator: NavWrapper;
   hideDevMenu: () => void;
 }
 
-export interface GenericScreenProp extends GenericScreenStateProp, GenericScreenDispatchProp {
+export interface GenericNavProp {
   componentId: string;
+}
+
+export interface GenericScreenProp extends GenericScreenStateProp,
+  GenericScreenDispatchProp, GenericNavProp {
   appConfig: AppConfigType;
   api: FSNetwork;
   testID: string;
@@ -58,6 +64,7 @@ export default function wrapScreen(
   const pageOptions: Options = PageComponent.options;
   const pageTopBar: OptionsTopBar = PageComponent.options && PageComponent.options.topBar;
   class GenericScreen extends Component<GenericScreenProp> {
+    static navigator: NavWrapper = new NavWrapper();
     static options: Options = {
       ...pageOptions,
       topBar: {
@@ -177,6 +184,7 @@ export default function wrapScreen(
           {...this.props}
           appConfig={appConfig}
           api={api}
+          navigator={this.props.navigator}
         />
       );
     }
@@ -190,6 +198,7 @@ export default function wrapScreen(
 
   function mapDispatchToProps(dispatch: any): GenericScreenDispatchProp {
     return {
+      navigator: GenericScreen.navigator,
       hideDevMenu: () => dispatch(setGlobalData({ devMenuHidden: true }))
     };
   }

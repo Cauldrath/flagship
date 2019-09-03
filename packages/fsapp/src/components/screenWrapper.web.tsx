@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 import FSNetwork from '@brandingbrand/fsnetwork';
 import { setGlobalData } from '../actions/globalDataAction';
 import qs from 'qs';
-import pushRoute from '../lib/push-route';
-import { AppConfigType, DrawerConfig, WebNavigator } from '../types';
+import NavWrapper from '../lib/nav-wrapper.web';
+import { AppConfigType, DrawerConfig } from '../types';
 
 const styles = StyleSheet.create({
   screenContainer: {
@@ -31,17 +31,21 @@ export interface GenericScreenStateProp {
 }
 
 export interface GenericScreenDispatchProp {
-  navigator: WebNavigator;
+  navigator: NavWrapper;
   hideDevMenu: () => void;
 }
 
-export interface GenericScreenProp extends GenericScreenStateProp, GenericScreenDispatchProp {
+export interface GenericNavProp {
   appConfig: AppConfigType;
+  history: any;
+}
+
+export interface GenericScreenProp extends GenericScreenStateProp,
+  GenericScreenDispatchProp, GenericNavProp {
   api: FSNetwork;
   href: string;
   match: any;
   location: any;
-  history: any;
 }
 
 export default function wrapScreen(
@@ -57,6 +61,7 @@ export default function wrapScreen(
   }
 
   class GenericScreen extends Component<GenericScreenProp> {
+    static navigator: NavWrapper = new NavWrapper();
     showDevMenu: boolean;
 
     constructor(props: GenericScreenProp) {
@@ -64,7 +69,6 @@ export default function wrapScreen(
       this.showDevMenu =
         __DEV__ ||
         (appConfig.env && appConfig.env.isFLAGSHIP);
-
     }
     componentDidMount(): void {
       const component = PageComponent.WrappedComponent || PageComponent;
@@ -81,10 +85,26 @@ export default function wrapScreen(
     }
 
     openDevMenu = () => {
-      this.props.navigator.push({
-        screen: 'devMenu',
-        title: 'FLAGSHIP Dev Menu'
-      });
+      this.props.navigator.showModal({
+        stack: {
+          children: [{
+            component: {
+              name: 'devMenu',
+              passProps: {
+                hideDevMenu: this.props.hideDevMenu
+              },
+              options: {
+                topBar: {
+                  title: {
+                    text: 'FLAGSHIP Dev Menu'
+                  }
+                }
+              }
+            }
+          }]
+        }
+      })
+      .catch(err => console.warn('openDevMenu SHOWMODAL error: ', err));
     }
 
     render(): JSX.Element {
@@ -92,6 +112,7 @@ export default function wrapScreen(
         <View style={styles.screenContainer}>
           {this.renderPage()}
           {this.renderVersion()}
+          {this.props.navigator.renderModals()}
         </View>
       );
     }
@@ -135,6 +156,7 @@ export default function wrapScreen(
           {...passProps}
           appConfig={appConfig}
           api={api}
+          navigator={this.props.navigator}
         />
       );
     }
@@ -150,19 +172,8 @@ export default function wrapScreen(
     dispatch: any,
     ownProps: GenericScreenProp
   ): GenericScreenDispatchProp {
-    const { history } = ownProps;
-
-    const navigator: WebNavigator = {
-      push: route => pushRoute(route, history, appConfig),
-      showModal: route => pushRoute(route, history, appConfig),
-      pop: () => history.goBack(),
-      toggleDrawer: config => toggleDrawerFn && toggleDrawerFn(config),
-      switchToTab: route => pushRoute(route, history, appConfig),
-      popToRoot: () => pushRoute(appConfig.screenWeb, history, appConfig)
-    };
-
     return {
-      navigator,
+      navigator: GenericScreen.navigator,
       hideDevMenu: () => dispatch(setGlobalData({ devMenuHidden: true }))
     };
   }

@@ -6,4 +6,6 @@ import EnvSwitcher from './lib/env-switcher';
 import projectEnvs from '../project_env_index';
 const env = projectEnvs[`${EnvSwitcher.envName}`] || projectEnvs.prod;
 
+export { GenericNavProp } from './components/screenWrapper';
+
 export { env, FSApp, FSAppTypes };

@@ -5,10 +5,10 @@ import React, { Component } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GenericScreenProp } from './screenWrapper.web';
 import TouchableRow from './TouchableRow';
-import { Screen } from '../types';
 // @ts-ignore project_env_index ignore and will be changed by init
 import projectEnvs from '../../project_env_index';
 import EnvSwitcher from '../lib/env-switcher';
+import { LayoutComponent } from 'react-native-navigation';
 
 const styles = StyleSheet.create({
   devViewcontainer: {
@@ -106,20 +106,20 @@ export default class DevMenu extends Component<GenericScreenProp, DevMenuState> 
   }
 
   renderDevMenu = () => {
-    const { devMenuScreensWeb = [] } = this.props.appConfig;
+    const { devMenuScreens = [] } = this.props.appConfig;
 
     return (
       <View style={styles.devViewcontainer}>
         <TouchableRow text={`View App Config`} onPress={this.showDevView('app-config')} />
         <TouchableRow text={`Env Switcher`} onPress={this.showDevView('envSwitcher')} />
-        {devMenuScreensWeb.map(this.renderCustomDevScreen)}
+        {devMenuScreens.map(this.renderCustomDevScreen)}
       </View>
     );
   }
 
-  renderCustomDevScreen = (item: Screen, i: number) => {
+  renderCustomDevScreen = (item: LayoutComponent, i: number) => {
     return (
-      <TouchableRow key={i} text={item.title || item.screen} onPress={this.pushToScreen(item)} />
+      <TouchableRow key={i} text={item.name} onPress={this.pushToScreen(item)} />
     );
   }
 
@@ -200,14 +200,14 @@ export default class DevMenu extends Component<GenericScreenProp, DevMenuState> 
   }
 
   dismissModal = () => {
-    this.props.navigator.pop();
+    this.props.navigator.pop(this.props).catch(e => { console.error(e); });
   }
 
   showDevView = (devView: string) => () => {
     this.setState({ devView });
   }
 
-  pushToScreen = (item: Screen) => () => {
-    this.props.navigator.push(item);
+  pushToScreen = (item: LayoutComponent) => () => {
+    //this.props.navigator.push(item);
   }
 }

@@ -1,8 +1,15 @@
 import { Analytics } from '@brandingbrand/fsengage';
 import { Dictionary } from '@brandingbrand/fsfoundation';
 import { FSNetworkRequestConfig } from '@brandingbrand/fsnetwork';
-import { LayoutComponent, Options, OptionsTopBarButton } from 'react-native-navigation';
-import { ImageRequireSource } from 'react-native';
+import {
+  Layout,
+  LayoutComponent,
+  LayoutStack,
+  LayoutStackChildren,
+  Options,
+  OptionsTopBarButton
+} from 'react-native-navigation';
+import { ImageRequireSource, ViewStyle } from 'react-native';
 import { PathFunction } from 'path-to-regexp';
 
 export interface DrawerType {
@@ -44,15 +51,6 @@ export interface Screen {
   screen: string;
   title?: string;
   passProps?: any;
-}
-
-export interface WebNavigator {
-  push: (route: any) => any;
-  pop: () => any;
-  popToRoot: () => any;
-  showModal: (route: any) => any;
-  toggleDrawer: (config: DrawerConfig) => void;
-  switchToTab: (route: any) => any;
 }
 
 export interface TabStyle {
@@ -139,3 +137,34 @@ export interface Location<T = any> {
   hash: string;
   state: T;
 }
+
+export interface NavModalOptions {
+  style?: ViewStyle;
+}
+
+export interface NavOptions extends Options {
+  modalContainer?: NavModalOptions;
+}
+
+export interface NavLayoutComponent extends LayoutComponent {
+  options?: NavOptions;
+}
+
+export interface NavLayoutStackChildren extends LayoutStackChildren {
+  component?: NavLayoutComponent;
+}
+
+export interface NavLayoutStack extends LayoutStack {
+  children?: NavLayoutStackChildren[];
+}
+
+export interface NavLayout extends Layout {
+  stack?: NavLayoutStack;
+  component?: NavLayoutComponent;
+}
+
+export interface NavModal {
+  layout: NavLayout;
+}
+
+export { default as NavWrapper } from '../lib/nav-wrapper';
