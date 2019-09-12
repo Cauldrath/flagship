@@ -3,7 +3,7 @@ const path = require("path");
 const autoprefixer = require('autoprefixer');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
-const { GenerateSW } = require('workbox-webpack-plugin');
+// const { GenerateSW } = require('workbox-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
@@ -210,25 +210,25 @@ module.exports = function(env, options) {
       }),
       // Generate a service worker script that will precache, and keep up to date,
       // the HTML & assets that are part of the Webpack build.
-      new GenerateSW({
-        // 4Mb cache limit per file
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-        // For unknown URLs, fallback to root page
-        navigateFallback: '/index.html',
-        // Ignores URLs starting from /__ (useful for Firebase):
-        // https://github.com/facebookincubator/create-react-app/issues/2237#issuecomment-302693219
-        navigateFallbackWhitelist: [/^(?!\/__).*/],
-        // Don't precache sourcemaps (they're large), typings, and build asset manifest:
-        exclude: [/\.d\.ts$/, /\.map$/, /asset-manifest\.json$/],
-        globPatterns: [
-          '/static/**/*.{js,css,html}',
-          '/index.html',
-          '/favicon.ico',
-          '/manifest.json',
-          '/web-icon.png',
-          '/web-icon@512.png'
-        ]
-      }),
+      // new GenerateSW({
+      //   // 4Mb cache limit per file
+      //   maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      //   // For unknown URLs, fallback to root page
+      //   navigateFallback: '/index.html',
+      //   // Ignores URLs starting from /__ (useful for Firebase):
+      //   // https://github.com/facebookincubator/create-react-app/issues/2237#issuecomment-302693219
+      //   navigateFallbackWhitelist: [/^(?!\/__).*/],
+      //   // Don't precache sourcemaps (they're large), typings, and build asset manifest:
+      //   exclude: [/\.d\.ts$/, /\.map$/, /asset-manifest\.json$/],
+      //   globPatterns: [
+      //     '/static/**/*.{js,css,html}',
+      //     '/index.html',
+      //     '/favicon.ico',
+      //     '/manifest.json',
+      //     '/web-icon.png',
+      //     '/web-icon@512.png'
+      //   ]
+      // }),
     ]);
   } else {
     (!options || !options.json) && console.log('Webpacking for Development');
