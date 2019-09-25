@@ -4,10 +4,13 @@ import {
   DeviceEventEmitter,
   ImageBackground,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View
 } from 'react-native';
+import { Navigation } from 'react-native-navigation';
 
+const NEW = 'NEW';
 const styles = StyleSheet.create({
   bottom: {
     flex: 1,
@@ -18,6 +21,21 @@ const styles = StyleSheet.create({
   fullScreen: {
     width: '100%',
     height: '100%'
+  },
+  newContainer: {
+    backgroundColor: '#c41230',
+    padding: 2,
+    paddingTop: 5,
+    width: 40,
+    marginBottom: 13,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  newText: {
+    fontFamily: 'Interstate-Bold',
+    fontSize: 12,
+    textAlign: 'center',
+    color: '#fff'
   }
 });
 
@@ -34,7 +52,9 @@ export interface ImageProp {
 export interface FullScreenCardProps extends CardProps {
   actions?: Action;
   contents: any;
+  storyType?: string;
   source: ImageProp;
+  isNew?: boolean;
 }
 
 export default class FullScreenImageCard extends Component<FullScreenCardProps> {
@@ -48,6 +68,9 @@ export default class FullScreenImageCard extends Component<FullScreenCardProps> 
   static contextTypes: any = {
     handleAction: PropTypes.func
   };
+  constructor(props: FullScreenCardProps) {
+    super(props);
+  }
 
   getChildContext = () => ({
     story: this.props.story,
@@ -65,23 +88,31 @@ export default class FullScreenImageCard extends Component<FullScreenCardProps> 
     this.props.api.logEvent('viewInboxStory', {
       messageId: this.props.id
     });
-    this.props.navigator.push({
-      screen: 'EngagementComp',
-      navigatorStyle: {
-        navBarHidden: true
-      },
-      passProps: {
-        json,
-        backButton: true,
-        name: this.props.name,
-        id: this.props.id
+    Navigation.push(this.props.componentId, {
+      component: {
+        name: 'EngagementComp',
+        options: {
+          topBar: {
+            visible: false,
+            drawBehind: true
+          },
+          bottomTabs: {
+            visible: false
+          }
+        },
+        passProps: {
+          json,
+          backButton: !(json.tabbedItems && json.tabbedItems.length),
+          name: this.props.name,
+          id: this.props.id
+        }
       }
-    });
+    }).catch(err => console.log('EngagementComp PUSH error:', err));
   }
 
   onCardPress = (): void => {
     const { handleAction } = this.context;
-    const { actions, story, storyGradient } = this.props;
+    const { actions, story, storyGradient, storyType } = this.props;
 
     // if there is a story attached and either
     //    1) no actions object (Related)
@@ -91,7 +122,8 @@ export default class FullScreenImageCard extends Component<FullScreenCardProps> 
     ) {
       this.handleStoryAction({
         ...story,
-        storyGradient
+        storyGradient,
+        storyType
       });
     } else if (actions && actions.type) {
       handleAction(actions);
@@ -112,6 +144,16 @@ export default class FullScreenImageCard extends Component<FullScreenCardProps> 
       >
         <ImageBackground source={contents.Image.source} style={styles.fullScreen}>
           <View style={styles.bottom}>
+            {this.props.isNew &&
+              <View
+                style={styles.newContainer}
+              >
+                <Text
+                  style={styles.newText}
+                >
+                  {NEW}
+                </Text>
+              </View>}
             <TextBlock
               {...contents.Eyebrow}
             />
