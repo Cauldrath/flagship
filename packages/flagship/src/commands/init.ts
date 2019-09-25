@@ -71,22 +71,15 @@ export function handler(argv: HandlerArgs): void {
     initWeb(projectPackageJSON, configuration, argv.env);
   }
 
-  // Run react-native link
-  link.link()
-    .then(() => {
-      if (doAndroid) {
-        modules.android(projectPackageJSON, configuration, 'postLink');
-      }
+  // Skip react-native link, as it is no longer used in 0.60
+  if (doAndroid) {
+    modules.android(projectPackageJSON, configuration, 'postLink');
+  }
 
-      if (doIOS) {
-        modules.ios(projectPackageJSON, configuration, 'postLink');
-        cocoapods.install();
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      process.exit(1);
-    });
+  if (doIOS) {
+    modules.ios(projectPackageJSON, configuration, 'postLink');
+    cocoapods.install();
+  }
 }
 
 /**

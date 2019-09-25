@@ -295,17 +295,19 @@ function highlightStr(name: string, query: string): any {
   const textSplits = name.split(queryRegx).reduce(
     (acc, item) => {
       if (item) {
-        // @ts-ignore
         acc.result.push({
+          // @ts-ignore
           str: item,
+          // @ts-ignore
           isHighlight: false
         });
       }
 
       if (matches[acc.matchIndex]) {
-        // @ts-ignore
         acc.result.push({
+          // @ts-ignore
           str: matches[acc.matchIndex],
+          // @ts-ignore
           isHighlight: true
         });
       }

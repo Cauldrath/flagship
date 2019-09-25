@@ -249,9 +249,10 @@ export class Swatches extends Component<SwatchesProps, SwatchesState> {
       <View>
         {label && this._renderLabel(swatch)}
         <View>
-          <View
-            style={[S.container, showMore ? showingMoreStyle : showingLessStyle, style]}
+          <
             // @ts-ignore className is only used for web
+            View
+            style={[S.container, showMore ? showingMoreStyle : showingLessStyle, style]}
             className={'swatch-scroll ' + (showMore ? 'showing-more' : 'showing-less')}
           >
             {displayItems.map(this._renderSwatch)}
