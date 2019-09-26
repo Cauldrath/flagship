@@ -5,7 +5,6 @@ import * as env from '../lib/env';
 import * as fastlane from '../lib/fastlane';
 import * as fs from '../lib/fs';
 import * as ios from '../lib/ios';
-import * as link from '../lib/link';
 import * as helpers from '../helpers';
 import * as modules from '../lib/modules';
 import * as path from '../lib/path';
