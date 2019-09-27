@@ -115,15 +115,23 @@ class Account extends Component<AccountScreenProps, AccountScreenState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: AccountScreenProps): void {
-    if (this.props.account.isLoggedIn && !nextProps.account.isLoggedIn) {
-      Navigation.mergeOptions(this.props.componentId, navBarHide);
-    } else if (!this.props.account.isLoggedIn && nextProps.account.isLoggedIn) {
-      Navigation.mergeOptions(this.props.componentId, accountNavStyle);
-      Navigation.mergeOptions(this.props.componentId, {
+  componentDidUpdate(prevProps: AccountScreenProps): void {
+    if (prevProps.account.isLoggedIn && !this.props.account.isLoggedIn) {
+      Navigation.mergeOptions(prevProps.componentId, navBarHide);
+    } else if (!prevProps.account.isLoggedIn && this.props.account.isLoggedIn) {
+      Navigation.mergeOptions(prevProps.componentId, accountNavStyle);
+      Navigation.mergeOptions(prevProps.componentId, {
         topBar: {
           rightButtons: [signOutButton.button]
         }
+      });
+    }
+  }
+
+  onNavigatorEvent = (event: any) => {
+    if (event.id === 'signOut') {
+      this.props.signOut().catch(e => {
+        console.warn('Error signing out', e);
       });
     }
   }
