@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, useState } from 'react';
 import RNPickerSelect, { Item } from 'react-native-picker-select';
-import { palette } from '../../../styles/variables';
+import { palette } from '../../styles/variables';
 
 import {
   Image,

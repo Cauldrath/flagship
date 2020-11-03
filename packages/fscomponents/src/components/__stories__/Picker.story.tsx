@@ -6,7 +6,7 @@ import {
 // tslint:disable-next-line no-implicit-dependencies
 } from '@storybook/addon-knobs';
 import { range } from 'lodash-es';
-import Picker from '../Form/Templates/Picker';
+import Picker from '../FormikFields/Picker';
 import { action } from '@storybook/addon-actions'; // tslint:disable-line:no-implicit-dependencies
 
 const setFormikField = (field: string, value: any, shouldValidate?: boolean): void => {

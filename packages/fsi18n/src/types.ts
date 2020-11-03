@@ -49,6 +49,7 @@ export interface FSTranslationKeys<KeyType = TranslationKey> extends Translation
     shareButton: ShareButtonTranslations<KeyType>;
     loginForm: LoginFormTranslations<KeyType>;
     emailForm: EmailFormTranslations<KeyType>;
+    errors: GeneralErrorTranslations<KeyType>;
     button: ButtonTranslations<KeyType>;
   };
 }
@@ -63,9 +64,11 @@ export interface AddressFormTranslations<KeyType = TranslationKey> {
   firstNameError: KeyType;
   lastName: KeyType;
   lastNameError: KeyType;
+  street: KeyType;
   address1: KeyType;
   address1Error: KeyType;
   address2: KeyType;
+  apt: KeyType;
   city: KeyType;
   cityError: KeyType;
   postal: KeyType;
@@ -74,10 +77,13 @@ export interface AddressFormTranslations<KeyType = TranslationKey> {
   stateError: KeyType;
   phone: KeyType;
   phoneError: KeyType;
+  phoneNumber: KeyType;
   email: KeyType;
   emailError: KeyType;
   poBox: KeyType;
   submit: KeyType;
+  tooltip: KeyType;
+  useAsDefaultAddress: KeyType;
 }
 
 export interface PasswordFormErrors<KeyType = TranslationKey> {
@@ -406,6 +412,9 @@ export interface EmailFormTranslations<KeyType> {
   error: KeyType;
 }
 
+export interface GeneralErrorTranslations<KeyType> {
+  required: KeyType;
+}
 export interface ButtonTranslations<KeyType> {
   apply: KeyType;
 }

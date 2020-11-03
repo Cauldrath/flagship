@@ -23,9 +23,11 @@ export const keys: FSTranslationKeys = {
       firstNameError: 'Please enter the first name',
       lastName: 'Last Name',
       lastNameError: 'Please enter the last name',
+      street: 'Street Address',
       address1: 'Address Line 1',
       address1Error: 'Please enter the address',
       address2: 'Address Line 2',
+      apt: 'Apt, Suite or P.O. Box',
       city: 'City',
       cityError: 'Please enter the city',
       postal: 'Zip Code',
@@ -34,10 +36,13 @@ export const keys: FSTranslationKeys = {
       stateError: 'Please enter the state',
       phone: 'Phone',
       phoneError: 'Please enter a valid phone number',
+      phoneNumber: 'Phone Number',
       email: 'Email',
       emailError: 'Please enter a valid email address',
       poBox: 'Check if this is P.O Box',
-      submit: 'Submit'
+      submit: 'Submit',
+      tooltip: 'Only used for customer support or delivery issues.',
+      useAsDefaultAddress: 'Use as my default address'
     },
     cart: {
       isEmpty: 'Empty Cart',
@@ -334,6 +339,9 @@ export const keys: FSTranslationKeys = {
     emailForm: {
       placeholder: 'Email',
       error: 'Required Field'
+    },
+    errors: {
+      required: 'is required'
     },
     button: {
       apply: 'Apply'
