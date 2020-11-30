@@ -10,8 +10,8 @@ import {
 } from 'react-native-navigation';
 import { Provider } from 'react-redux';
 import screenWrapper from '../components/screenWrapper';
-import { AppConfigType, Tab } from '../types';
-import { InteractionManager, NativeModules, Platform } from 'react-native';
+import { AppConfigType, NavLayout, Tab } from '../types';
+import { InteractionManager, Linking, NativeModules, Platform } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 const { CodePush } = NativeModules;
 import NativeConstants from '../lib/native-constants';
@@ -19,6 +19,7 @@ import { FSAppBase, WebApplication } from './FSAppBase';
 import DevMenu from '../components/DevMenu';
 import { Store } from 'redux';
 import { NotFound } from '../components/NotFound';
+import { hrefToNav } from '../lib/helpers';
 
 const LAST_SCREEN_KEY = 'lastScreen';
 const DEV_KEEP_SCREEN = 'devKeepPage';
@@ -136,13 +137,23 @@ export class FSApp extends FSAppBase {
 
   protected async startSingleScreenApp(): Promise<void> {
     const { screen } = this.appConfig;
-    if (!screen) {
+    let navLayout: NavLayout = {
+      component: screen
+    };
+    if (this.appConfig.deeplink) {
+      const initial = this.appConfig.testDeeplink || await Linking.getInitialURL();
+      if (initial) {
+        const navMatch = hrefToNav(initial, this.appConfig);
+        if (navMatch) {
+          navLayout = navMatch.layout;
+        }
+      }
+    }
+    if (!navLayout.component) {
       throw new Error('screen must be defined in the app config to start a singleScreen app');
     }
 
-    const children = [{
-      component: screen
-    }];
+    const children = [navLayout];
 
     if (this.shouldShowDevMenu()) {
       const restoredScreen = await this.getSavedScreen();
@@ -231,6 +242,7 @@ export class FSApp extends FSAppBase {
     return options;
   }
 
+  // tslint:disable-next-line: cyclomatic-complexity
   protected async prepareTab(tab: Tab, index: number): Promise<LayoutTabsChildren> {
     let { id } = tab;
     if (!id) {
@@ -238,11 +250,24 @@ export class FSApp extends FSAppBase {
       console.warn('Please specify an id for the ' + tab.name + 'tab. Defaulting to ' + id);
     }
 
-    const children: LayoutStackChildren[] = [{
+    let navLayout: NavLayout = {
       component: {
         name: tab.name
       }
-    }];
+    };
+
+    if (this.appConfig.deeplink) {
+      const initial = this.appConfig.testDeeplink || await Linking.getInitialURL();
+      if (initial) {
+        const navMatch = hrefToNav(initial, this.appConfig);
+        if (navMatch && (navMatch.screen.defaultOpen ?
+            navMatch.screen.defaultOpen === id : this.appConfig.deeplink === id)) {
+          navLayout = navMatch.layout;
+        }
+      }
+    }
+
+    const children: LayoutStackChildren[] = [navLayout];
 
     // Push saved screen onto the first tab stack
     if (index === 0 && this.shouldShowDevMenu()) {

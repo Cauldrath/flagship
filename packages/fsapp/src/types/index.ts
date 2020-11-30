@@ -115,6 +115,8 @@ export interface AppConfigType {
   notFoundRedirect?: RoutableComponentClass | NavLayout | true;
   uncachedData?: (initialState: any, req?: Request) => Promise<SSRData>;
   cachedData?: (initialState: any, req?: Request) => Promise<SSRData>;
+  testDeeplink?: string;
+  deeplink?: boolean | string;
 }
 
 export interface Tab extends LayoutComponent {
