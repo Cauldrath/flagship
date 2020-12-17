@@ -20,12 +20,61 @@
 #import <React/RCTBundleURLProvider.h>
 #endif
 
+#import "lib/FKUserDefaultsSwizzleUtility.m"
 #import "CodePush.h"
 
 @implementation AppDelegate
 
+NSString* const kStandardUserDefaultsName = @"Standard UserDefaults";
+NSString* const kAppSuiteUserDefaultsName = @"App Suite UserDefaults";
+
+NSUserDefaults* _standardUserDefaults;
+
+- (void)userDefaults:(NSUserDefaults*)userDefaults
+    changedWithValue:(id)value
+    key:(NSString*)key {
+  NSTimeInterval interval = [[NSDate date] timeIntervalSince1970] * 1000;
+  NSString* intervalStr = [NSString stringWithFormat:@"%f", interval];
+  NSMutableDictionary* params =
+      [@{@"name" : key, @"time" : intervalStr} mutableCopy];
+
+  if (!value) {
+    [params setObject:@"YES" forKey:@"deleted"];
+  } else {
+    [params setObject:value forKey:@"value"];
+  }
+
+  NSString* sharedPreferencesName =
+      (userDefaults == _standardUserDefaults ? kStandardUserDefaultsName
+                                             : kAppSuiteUserDefaultsName);
+  [params setObject:sharedPreferencesName forKey:@"preferences"];
+}
+
+- (void)flipperPluginCalls {
+    _standardUserDefaults = [NSUserDefaults standardUserDefaults];
+    __weak typeof(self) weakSelf = self;
+    [FKUserDefaultsSwizzleUtility
+        swizzleSelector:@selector(setObject:forKey:)
+                  class:[NSUserDefaults class]
+                  block:^(NSInvocation* _Nonnull invocation) {
+                    __unsafe_unretained id firstArg = nil;
+                    __unsafe_unretained id secondArg = nil;
+                    [invocation getArgument:&firstArg atIndex:2];
+                    [invocation getArgument:&secondArg atIndex:3];
+                    [invocation invoke];
+                    [weakSelf userDefaults:([invocation.target
+                                                isKindOfClass:[NSUserDefaults
+                                                                  class]]
+                                                ? invocation.target
+                                                : nil)
+                          changedWithValue:firstArg
+                                       key:secondArg];
+                  }];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+[self flipperPluginCalls];
 NSURL *jsCodeLocation;
 
 #if __has_include(<AppCenterReactNativeCrashes/AppCenterReactNativeCrashes.h>)
